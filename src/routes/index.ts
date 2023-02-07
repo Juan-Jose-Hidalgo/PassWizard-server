@@ -13,7 +13,6 @@ const router = Router();
  */
 const cleanFileName = (fileName: string) => {
     const file = fileName.split('.ts').shift();
-    console.log('Nombre:', file);
     return file;
 }
 
