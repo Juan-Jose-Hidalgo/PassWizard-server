@@ -1,5 +1,5 @@
 import { userModel } from "../models/user.model";
-import { UserResponse } from "../interfaces/user-response.interface";
+import { AppResponse } from "../interfaces/response.interface";
 import { generateJwt } from "../helpers/create-jwt.helper";
 import { compare, encrypt } from "../helpers/bcrypt.helper";
 
@@ -10,13 +10,13 @@ class UserService {
      * 
      * If the email is found, it compares the encrypted password with the one passed by parameter.
      * 
-     * If both data are correct, it generates a JWT and returns a response of type UserResponse.
+     * If both data are correct, it generates a JWT and returns a response of type AppResponse.
      * 
      * @param email ```string```
      * @param password ```string```
-     * @returns ```Promise<UserResponse>```
+     * @returns ```Promise<AppResponse>```
      */
-    async login(email: string, password: string): Promise<UserResponse> {
+    async login(email: string, password: string): Promise<AppResponse> {
         let cryptPass: boolean = false;
         try {
             const user: any = await userModel.findOne({ where: { email } });
@@ -47,15 +47,15 @@ class UserService {
      * 
      * Encripta su password y genera un nuevo JWT.
      * 
-     * Returns a response of type UserResponse.
+     * Returns a response of type AppResponse.
      * 
      * @param name ```string```
      * @param username ```string```
      * @param email ```string```
      * @param password ```string```
-     * @returns ```Promise<UserResponse>```
+     * @returns ```Promise<AppResponse>```
      */
-    async register(name: string, username: string, email: string, password: string): Promise<UserResponse> {
+    async register(name: string, username: string, email: string, password: string): Promise<AppResponse> {
         try {
             const passBcrypt = encrypt(password); // Password encrypt.
             const newUser: any = await userModel.create({ name, username, email, password: passBcrypt });
@@ -71,7 +71,7 @@ class UserService {
         }
     }
 
-    async renewToken(id: string): Promise<UserResponse> {
+    async renewToken(id: string): Promise<AppResponse> {
         const user: any = await userModel.findByPk(id);
         if (user === null) {
             throw {

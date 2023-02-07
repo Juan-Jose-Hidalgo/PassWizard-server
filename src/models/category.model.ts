@@ -11,6 +11,7 @@ export const categoryModel = sequelize.define('categories', {
     name: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true
     }
 });
 
