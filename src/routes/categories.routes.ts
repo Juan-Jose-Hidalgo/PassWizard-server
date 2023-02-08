@@ -1,21 +1,16 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
+import categoryController from "../controllers/category.controllers";
 
 const router = Router();
 
-router.get('/', (req: Request, res: Response) => {
-    res.send({ data: 'Aqui_van_los_models' });
-});
+router.get('/', categoryController.getCategories);
 
-router.post('/', (req: Request, res: Response) => {
-    res.send({ data: 'Aqui_van_los_models' });
-});
+router.get('/category', categoryController.getCategory);
 
-router.put('/', (req: Request, res: Response) => {
-    res.send({ data: 'Aqui_van_los_models' });
-});
+router.post('/', categoryController.newCategory);
 
-router.delete('/', (req: Request, res: Response) => {
-    res.send({ data: 'Aqui_van_los_models' });
-});
+router.put('/:id', categoryController.updateCategory);
+
+router.delete('/:id', categoryController.deleteCategory);
 
 export { router };

@@ -1,21 +1,12 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
+import passwordController from "../controllers/password.controller";
 
 const router = Router();
 
-router.get('/', (req: Request, res: Response) => {
-    res.send({ data: 'Aqui_van_los_models' });
-});
+router.post('/', passwordController.createPassword);
 
-router.post('/', (req: Request, res: Response) => {
-    res.send({ data: 'Aqui_van_los_models' });
-});
+router.put('/:id', passwordController.updatePassword);
 
-router.put('/', (req: Request, res: Response) => {
-    res.send({ data: 'Aqui_van_los_models' });
-});
-
-router.delete('/', (req: Request, res: Response) => {
-    res.send({ data: 'Aqui_van_los_models' });
-});
+router.delete('/:id', passwordController.deletePassword);
 
 export { router };

@@ -1,21 +1,16 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
+import userController from "../controllers/user.controllers";
 
 const router = Router();
 
-router.get('/', (req: Request, res: Response) => {
-    res.send({ data: 'Aqui_van_los_models' });
-});
+router.get('/login', userController.login);
 
-router.post('/', (req: Request, res: Response) => {
-    res.send({ data: 'Aqui_van_los_models' });
-});
+router.post('/register', userController.register);
 
-router.put('/', (req: Request, res: Response) => {
-    res.send({ data: 'Aqui_van_los_models' });
-});
+router.get('/:id/renew-token', userController.renewToken);
 
-router.delete('/', (req: Request, res: Response) => {
-    res.send({ data: 'Aqui_van_los_models' });
-});
+router.put('/:id', userController.updateUser);
+
+router.delete('/:id', userController.deleteUser);
 
 export { router };
