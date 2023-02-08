@@ -9,7 +9,7 @@ export const passwordModel = sequelize.define('passwords', {
     },
     description: {
         type: DataTypes.TEXT,
-        allowNull: true,
+        allowNull: false,
     },
     password: {
         type: DataTypes.STRING,
