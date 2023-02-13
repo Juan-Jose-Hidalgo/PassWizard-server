@@ -1,7 +1,9 @@
-import { userModel } from "../models/user.model";
+import { JwtPayload } from "jsonwebtoken";
+
 import { AppResponse } from "../interfaces/response.interface";
-import { generateJwt } from "../helpers/create-jwt.helper";
 import { compare, encrypt } from "../helpers/bcrypt.helper";
+import { generateJwt, validateJWT } from "../helpers/jwt.helper";
+import { userModel } from "../models/user.model";
 
 class UserService {
 
@@ -71,17 +73,25 @@ class UserService {
         }
     }
 
-    async renewToken(id: string): Promise<AppResponse> {
-        const user: any = await userModel.findByPk(id);
-        if (user === null) {
+    async renewToken(token: string) {
+        if (!token) {
             throw {
-                status: 404,
-                message: 'Usuario no encontrado.'
+                status: 401,
+                message: 'Error en el token.'
             }
         }
-        const key = `${process.env.JWT_SECRET}`;
-        const token = generateJwt(id);
-        return { status: 'OK', data: { user, token } };
+
+        try {
+            const { id } = validateJWT(token) as JwtPayload;
+            const newToken = generateJwt(id);
+            return { status: 'OK', data: { userId: id, token: newToken } };
+
+        } catch (error) {
+            throw {
+                status: 401,
+                message: 'Token no válido'
+            };
+        }
     }
 }
 

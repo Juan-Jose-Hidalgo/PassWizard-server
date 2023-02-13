@@ -7,7 +7,7 @@ router.get('/login', userController.login);
 
 router.post('/register', userController.register);
 
-router.get('/:id/renew-token', userController.renewToken);
+router.get('/renew-token', userController.renewToken);
 
 router.put('/:id', userController.updateUser);
 

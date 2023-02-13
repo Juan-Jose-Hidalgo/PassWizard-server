@@ -61,9 +61,9 @@ class UserController {
 
     async renewToken(req: Request, res: Response) {
         try {
-            const { id } = req.params;
-            const user: any = await userService.renewToken(id);
-            res.status(200).send({ status: 'OK', data: user });
+            const token = req.header('x-token');
+            const newToken = await userService.renewToken(`${token}`);
+            res.status(200).send(newToken);
 
         } catch (error: any) {
             res.status(error?.status || 500).send({ status: 'Failed', data: { error: error.message || error } });
