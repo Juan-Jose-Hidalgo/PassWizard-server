@@ -7,8 +7,8 @@ export const passwordModel = sequelize.define('passwords', {
         primaryKey: true,
         autoIncrement: true
     },
-    description: {
-        type: DataTypes.TEXT,
+    name: {
+        type: DataTypes.STRING,
         allowNull: false,
     },
     password: {
