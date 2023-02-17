@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import { encrypt } from '../helpers/bcrypt.helper';
+import { categoryModel } from '../models/category.model';
+import { passwordModel } from '../models/password.model';
 import { userModel } from '../models/user.model';
 import userService from '../services/user.service';
 
@@ -54,6 +56,27 @@ class UserController {
             const deletedUser = await userModel.destroy({ where: { id } });
             res.status(200).send({ status: 'OK', data: deletedUser });
 
+        } catch (error: any) {
+            res.status(error?.status || 500).send({ status: 'Failed', data: { error: error.message || error } });
+        }
+    }
+
+    async getUserPasswords(req: Request, res: Response) {
+        try {
+            let { userId } = req.params;
+            const passwords = await passwordModel.findAll({ where: { userId } });
+            res.status(200).send({ status: 'OK', passwords });
+
+        } catch (error: any) {
+            res.status(error?.status || 500).send({ status: 'Failed', data: { error: error.message || error } });
+        }
+    }
+
+    async getUserCategories(req: Request, res: Response) {
+        try {
+            const { userId } = req.params;
+            const categories = await categoryModel.findAll({ where: { userId } });
+            res.status(200).send({ status: 'OK', categories });
         } catch (error: any) {
             res.status(error?.status || 500).send({ status: 'Failed', data: { error: error.message || error } });
         }

@@ -1,11 +1,16 @@
-import { CategoryInterface, PasswordInterface, UserInterface } from "./models.interface";
+import { UserInterface } from "./models.interface";
 
-export interface AppResponse {
+interface AppResponse {
     status: string;
-    data: {
-        category?: CategoryInterface | CategoryInterface[];
-        password?: PasswordInterface | PasswordInterface[];
-        user?: UserInterface;
-        token?: string;
-    }
+}
+
+export interface TokenResponse extends AppResponse {
+    userId: number;
+    username: string;
+    token: string;
+}
+
+export interface UserResponse extends AppResponse {
+    user: UserInterface | UserInterface[];
+    token?: string;
 }

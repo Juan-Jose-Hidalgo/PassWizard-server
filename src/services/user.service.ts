@@ -1,6 +1,6 @@
 import { JwtPayload } from "jsonwebtoken";
 
-import { AppResponse } from "../interfaces/response.interface";
+import { TokenResponse, UserResponse } from "../interfaces/response.interface";
 import { compare, encrypt } from "../helpers/bcrypt.helper";
 import { generateJwt, validateJWT } from "../helpers/jwt.helper";
 import { userModel } from "../models/user.model";
@@ -12,13 +12,13 @@ class UserService {
      * 
      * If the email is found, it compares the encrypted password with the one passed by parameter.
      * 
-     * If both data are correct, it generates a JWT and returns a response of type AppResponse.
+     * If both data are correct, it generates a JWT and returns a response of type UserResponse.
      * 
      * @param email ```string```
      * @param password ```string```
-     * @returns ```Promise<AppResponse>```
+     * @returns ```Promise<UserResponse>```
      */
-    async login(email: string, password: string): Promise<AppResponse> {
+    async login(email: string, password: string): Promise<UserResponse> {
         let cryptPass: boolean = false;
         try {
             const user: any = await userModel.findOne({ where: { email } });
@@ -35,9 +35,9 @@ class UserService {
             }
 
             // Generate JWT.
-            const token = generateJwt(user.id);
+            const token = generateJwt(user.id, user.username);
 
-            return { status: 'OK', data: { user, token } };
+            return { status: 'OK', user: user, token };
 
         } catch (error) {
             throw error;
@@ -49,21 +49,21 @@ class UserService {
      * 
      * Encripta su password y genera un nuevo JWT.
      * 
-     * Returns a response of type AppResponse.
+     * Returns a response of type UserResponse.
      * 
      * @param name ```string```
      * @param username ```string```
      * @param email ```string```
      * @param password ```string```
-     * @returns ```Promise<AppResponse>```
+     * @returns ```Promise<UserResponse>```
      */
-    async register(name: string, username: string, email: string, password: string): Promise<AppResponse> {
+    async register(name: string, username: string, email: string, password: string): Promise<UserResponse> {
         try {
             const passBcrypt = encrypt(password); // Password encrypt.
             const newUser: any = await userModel.create({ name, username, email, password: passBcrypt });
             // Generate JWT.
-            const token = generateJwt(newUser.id);
-            return { status: 'OK', data: { user: newUser, token } };
+            const token = generateJwt(newUser.id, newUser.username);
+            return { status: 'OK', user: newUser, token };
 
         } catch (error: any) {
             throw {
@@ -73,7 +73,7 @@ class UserService {
         }
     }
 
-    async renewToken(token: string) {
+    async renewToken(token: string): Promise<TokenResponse> {
         if (!token) {
             throw {
                 status: 401,
@@ -82,9 +82,9 @@ class UserService {
         }
 
         try {
-            const { id } = validateJWT(token) as JwtPayload;
-            const newToken = generateJwt(id);
-            return { status: 'OK', data: { userId: id, token: newToken } };
+            const { id, username } = validateJWT(token) as JwtPayload;
+            const newToken = generateJwt(id, username);
+            return { status: 'OK', userId: id, username, token: newToken };
 
         } catch (error) {
             throw {
