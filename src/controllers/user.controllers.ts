@@ -19,11 +19,19 @@ class UserController {
         }
     }
 
-    async register({ body }: Request, res: Response) {
+    async register(req: Request, res: Response) {
         try {
-            const { name, username, email, password } = body;
-            const newUser = await userService.register(name, username, email, password);
-            res.status(200).send(newUser);
+            // const { name, username, email, password } = req.body;
+            // const img = req.file || null;
+
+            // console.log('----------------------------------------------------');
+            // console.log('Imagen', img);
+            // console.log('----------------------------------------------------');
+
+            // const newUser = await userService.register(name, username, email, password, img);
+            // res.status(200).send(newUser);
+
+            res.status(200).send({ status: 'Success' });
 
         } catch (error: any) {
             console.log('Error', error);

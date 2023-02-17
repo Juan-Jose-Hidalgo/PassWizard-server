@@ -57,10 +57,10 @@ class UserService {
      * @param password ```string```
      * @returns ```Promise<UserResponse>```
      */
-    async register(name: string, username: string, email: string, password: string): Promise<UserResponse> {
+    async register(name: string, username: string, email: string, password: string, img: string | null): Promise<UserResponse> {
         try {
             const passBcrypt = encrypt(password); // Password encrypt.
-            const newUser: any = await userModel.create({ name, username, email, password: passBcrypt });
+            const newUser: any = await userModel.create({ name, username, email, password: passBcrypt, img });
             // Generate JWT.
             const token = generateJwt(newUser.id, newUser.username);
             return { status: 'OK', user: newUser, token };

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import userController from "../controllers/user.controllers";
+import upload from "../middlewares/user-img.middleware";
 
 const router = Router();
 
@@ -9,7 +10,7 @@ router.get('/:userId/get-passwords', userController.getUserPasswords);
 
 router.get('/:userId/get-categories', userController.getUserCategories);
 
-router.post('/register', userController.register);
+router.post('/register', upload, userController.register);
 
 router.get('/renew-token', userController.renewToken);
 
