@@ -1,13 +1,13 @@
 import { JwtPayload } from "jsonwebtoken";
 
-import { UserResponse } from "../interfaces/response.interface";
 import { compare, encrypt } from "../helpers/bcrypt.helper";
 import { generateJwt, validateJWT } from "../helpers/jwt.helper";
 import { userModel } from "../models/user.model";
+import { UserResponse } from "../interfaces/response.interface";
 import { ValidationError } from "sequelize";
+import { CustomError } from "../interfaces/error.interface";
 
 class UserService {
-
     /**
      * Checks if the email and password passed by parameter are found in the database.
      * 
@@ -38,7 +38,7 @@ class UserService {
             // Generate JWT.
             const token = generateJwt(user.id, user.username);
 
-            return { status: 'OK', user: user, token };
+            return { status: 'OK', user, token };
 
         } catch (error) {
             throw error;
@@ -46,29 +46,33 @@ class UserService {
     }
 
     /**
-     * Register a new user in the database.
+     * Registers a new user in the system.
      * 
-     * Encripta su password y genera un nuevo JWT.
-     * 
-     * Returns a response of type UserResponse.
-     * 
-     * @param name ```string```
-     * @param username ```string```
-     * @param email ```string```
-     * @param password ```string```
-     * @returns ```Promise<any>```
+     * @param name - The name of the user.
+     * @param username - The username of the user.
+     * @param email - The email address of the user.
+     * @param password - The password of the user.
+     * @param img - The URL of the user's profile image.
+     * @returns An object containing the new user, a JWT token and a status message.
+     * @throws {CustomError} When there's a validation error (status 422) or an unexpected error (status 500).
      */
     async register(name: string, username: string, email: string, password: string, img: string): Promise<any> {
         try {
-            const passBcrypt = encrypt(password); // Password encrypt.
+            const passBcrypt = encrypt(password); //Encrypt the password
             const newUser: any = await userModel.create({ name, username, email, password: passBcrypt, img });
-            // Generate JWT.
-            const token = generateJwt(newUser.id, newUser.username);
-            return { status: 'OK', user: newUser, token };
+
+            const token = generateJwt(newUser.id, newUser.username); //Generate JWT
+            return { status: 'OK', user: newUser, token }
 
         } catch (error) {
-            if (error instanceof ValidationError) throw { status: 422, message: error.errors[0].message };
-            else throw { status: 500, message: 'Error inesperado' };
+            if (error instanceof ValidationError) {
+                const message = error.errors[0]?.message || 'Error en la validación del formulario';
+                const err = new Error(message) as CustomError;
+                err.status = 422;
+                throw err;
+            }
+
+            throw new Error('Unexpected error');
         }
     }
 

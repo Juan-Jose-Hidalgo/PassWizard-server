@@ -3,6 +3,7 @@ import { UserInterface } from "./models.interface";
 
 interface AppResponse {
     status: string;
+    message?: string; //Error message.
 }
 
 export interface TokenResponse extends AppResponse {
@@ -12,7 +13,6 @@ export interface TokenResponse extends AppResponse {
 }
 
 export interface UserResponse extends AppResponse {
-    user: UserInterface | UserInterface[];
+    user: UserInterface;
     token?: string;
-    error?:any
 }
