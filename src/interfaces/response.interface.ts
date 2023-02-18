@@ -1,3 +1,4 @@
+import { Error } from "sequelize";
 import { UserInterface } from "./models.interface";
 
 interface AppResponse {
@@ -13,4 +14,5 @@ export interface TokenResponse extends AppResponse {
 export interface UserResponse extends AppResponse {
     user: UserInterface | UserInterface[];
     token?: string;
+    error?:any
 }
