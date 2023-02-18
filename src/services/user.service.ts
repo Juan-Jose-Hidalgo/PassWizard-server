@@ -1,9 +1,10 @@
 import { JwtPayload } from "jsonwebtoken";
 
-import { TokenResponse, UserResponse } from "../interfaces/response.interface";
+import { UserResponse } from "../interfaces/response.interface";
 import { compare, encrypt } from "../helpers/bcrypt.helper";
 import { generateJwt, validateJWT } from "../helpers/jwt.helper";
 import { userModel } from "../models/user.model";
+import { ValidationError } from "sequelize";
 
 class UserService {
 
@@ -55,25 +56,23 @@ class UserService {
      * @param username ```string```
      * @param email ```string```
      * @param password ```string```
-     * @returns ```Promise<UserResponse>```
+     * @returns ```Promise<any>```
      */
-    async register(name: string, username: string, email: string, password: string): Promise<UserResponse> {
+    async register(name: string, username: string, email: string, password: string, img: string): Promise<any> {
         try {
             const passBcrypt = encrypt(password); // Password encrypt.
-            const newUser: any = await userModel.create({ name, username, email, password: passBcrypt });
+            const newUser: any = await userModel.create({ name, username, email, password: passBcrypt, img });
             // Generate JWT.
             const token = generateJwt(newUser.id, newUser.username);
             return { status: 'OK', user: newUser, token };
 
-        } catch (error: any) {
-            throw {
-                status: 400,
-                message: error.errors[0].message
-            };
+        } catch (error) {
+            if (error instanceof ValidationError) throw { status: 422, message: error.errors[0].message };
+            else throw { status: 500, message: 'Error inesperado' };
         }
     }
 
-    async renewToken(token: string): Promise<TokenResponse> {
+    async renewToken(token: string) {
         if (!token) {
             throw {
                 status: 401,

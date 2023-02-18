@@ -6,5 +6,6 @@ const pass = `${process.env.PASSWORDDB}`;
 
 export const sequelize = new Sequelize(db, user, pass, {
     host: 'localhost',
-    dialect: 'postgres'
+    dialect: 'postgres',
+    logging: false,
 });

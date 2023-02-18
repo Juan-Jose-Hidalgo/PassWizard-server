@@ -5,7 +5,6 @@ import { passwordModel } from '../models/password.model';
 import { userModel } from '../models/user.model';
 import userService from '../services/user.service';
 
-
 class UserController {
 
     async login({ headers }: Request, res: Response) {
@@ -15,19 +14,20 @@ class UserController {
             res.status(200).send(user);
 
         } catch (error: any) {
-            res.status(error?.status || 500).send({ status: 'Failed', data: { error: error.message || error } });
+            res.status(error?.status || 500).send({ status: 'Failed', message: error.message || error });
         }
     }
 
-    async register({ body }: Request, res: Response) {
+    async register(req: Request, res: Response) {
         try {
-            const { name, username, email, password } = body;
-            const newUser = await userService.register(name, username, email, password);
-            res.status(200).send(newUser);
+            const { name, username, email, password } = req.body;
+            const img = req.file?.path || 'uploads/user.png';
+            const newUser = await userService.register(name, username, email, password, img);
+            res.status(201).send(newUser);
 
         } catch (error: any) {
             console.log('Error', error);
-            res.status(error?.status || 500).send({ status: 'Failed', data: { error: error.message || error } });
+            res.status(error?.status || 500).send({ status: 'Failed', message: error || error });
         }
     }
 

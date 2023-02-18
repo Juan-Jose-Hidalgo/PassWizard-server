@@ -9,24 +9,28 @@ export const userModel = sequelize.define('users', {
         primaryKey: true,
         autoIncrement: true
     },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    },
+    img: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
     name: {
         type: DataTypes.STRING,
         allowNull: false,
+    },
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false
     },
     username: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true
     },
-    email: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true
-    },
-    password: {
-        type: DataTypes.STRING,
-        allowNull: false
-    }
 });
 
 //*Relationships
