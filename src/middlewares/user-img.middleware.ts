@@ -3,45 +3,45 @@ import multer, { FileFilterCallback } from "multer";
 import path from 'path';
 import { NextFunction, Request, Response } from "express";
 
-const MIMETYPES = ["image/jpeg", "image/jpg", "image/png"];
-const maxSize = 1024 * 1024;
+const IMAGE_MIMETYPES: string[] = ["image/jpeg", "image/jpg", "image/png"];
+const MAX_IMAGE_SIZE: number = 1024 * 1024;
 
-
-//Store the image and rename it.
-const storage = multer.diskStorage({
-    destination: 'uploads',
-    filename: (req: Request, file, callback) => {
-        const uuid = crypto.randomUUID();
-        callback(null, uuid + path.extname(file.originalname));
-    },
-});
-
-//Check if the file is an image.
-const fileFilter = (req: Request, file: Express.Multer.File, callback: FileFilterCallback) => {
-    if (MIMETYPES.includes(file.mimetype)) return callback(null, true);
-    return callback(null, false);
-}
-
-const upload = (req: Request, res: Response, next: NextFunction) => {
+/**
+ * Middleware function for handling image uploads using Multer.
+ * 
+ * @param req The Express request object.
+ * @param res The Express response object.
+ * @param next The next middleware function.
+ * @returns void
+ */
+const uploadImage = (req: Request, res: Response, next: NextFunction): void => {
     return multer({
-        storage,
-        limits: { fileSize: maxSize },
-        fileFilter,
+        storage: multer.diskStorage({
+            destination: 'uploads',
+            filename: (req: Request, file, callback) => {
+                const uuid = crypto.randomUUID();
+                callback(null, uuid + path.extname(file.originalname));
+            },
+        }),
+        limits: { fileSize: MAX_IMAGE_SIZE },
+        fileFilter: (req: Request, file: Express.Multer.File, callback: FileFilterCallback) => {
+            const isImage = IMAGE_MIMETYPES.includes(file.mimetype);
+            callback(null, isImage);
+        },
     }).single('img')(req, res, (err) => {
-        //Image size limit exceeded.
         if (err instanceof multer.MulterError) {
-            return res.status(400).send({ status: 'Failed', message: 'El tamaño máximo permitido es de 1MB.' })
+            // The uploaded image exceeded the maximum size.
+            return res.status(400).send({ status: 'Failed', message: 'The maximum allowed size is 1MB.' });
         }
 
-        //Mimetypes format not allowed.
-        if (!req.file) {
-            return res.status(400).send({ status: 'Failed', message: 'Solo se aceptan los siguientes formatos: .jpeg, .jpg o .png' });
-        };
+        if (err) {
+            // An error occurred during the image upload process.
+            return res.status(400).send({ status: 'Failed', message: err.message });
+        }
 
-        //Other errors.
-        if (err) return res.status(400).send({ status: 'Failed', message: err.message });
+        // Move on to the next middleware function.
         next();
     });
-}
+};
 
-export default upload;
+export default uploadImage;

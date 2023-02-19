@@ -22,12 +22,15 @@ class UserController {
         try {
             const { name, username, email, password } = req.body;
             const img = req.file?.path || 'uploads/user.png';
+            console.log('--------------------------------');
+            console.log(req.file);
+            console.log('--------------------------------');
             const newUser = await userService.register(name, username, email, password, img);
             res.status(201).send(newUser);
 
         } catch (error: any) {
             console.log('Error', error);
-            res.status(error?.status || 500).send({ status: 'Failed', message: error || error });
+            res.status(error?.status || 500).send({ status: 'Failed', message: error.message });
         }
     }
 
