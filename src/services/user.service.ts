@@ -29,10 +29,10 @@ class UserService {
 
             // If any data is invalid, it throws an error.
             if (!cryptPass || user === null) {
-                throw {
-                    status: 404,
-                    message: 'Email o contraseña incorrectos.'
-                }
+                const message = 'Usuario o contraseña incorrectos.';
+                const err = new Error(message) as CustomError;
+                err.status = 404;
+                throw err;
             }
 
             // Generate JWT.
@@ -69,6 +69,25 @@ class UserService {
                 const message = error.errors[0]?.message || 'Error en la validación del formulario';
                 const err = new Error(message) as CustomError;
                 err.status = 422;
+                throw err;
+            }
+
+            throw new Error('Unexpected error');
+        }
+    }
+
+    async updateUser(id: string, name: string, username: string, email: string) {
+        try {
+            const user = await userModel.update(
+                { name, username, email },
+                { where: { id } }
+            );
+            return { status: 'OK', user }
+        } catch (error) {
+            if (error instanceof ValidationError) {
+                const message = error.errors[0]?.message || 'Error en la validación del formulario';
+                const err = new Error(message) as CustomError;
+                err.status = 409;
                 throw err;
             }
 
