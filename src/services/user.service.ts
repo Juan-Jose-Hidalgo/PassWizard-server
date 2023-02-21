@@ -1,11 +1,11 @@
 import { JwtPayload } from "jsonwebtoken";
+import { ValidationError } from "sequelize";
 
 import { compare, encrypt } from "../helpers/bcrypt.helper";
 import { generateJwt, validateJWT } from "../helpers/jwt.helper";
-import { userModel } from "../models/user.model";
-import { UserResponse } from "../interfaces/response.interface";
-import { ValidationError } from "sequelize";
 import { CustomError } from "../interfaces/error.interface";
+import { UserResponse } from "../interfaces/response.interface";
+import { userModel } from "../models/user.model";
 
 class UserService {
     /**
@@ -91,6 +91,23 @@ class UserService {
                 throw err;
             }
 
+            throw new Error('Unexpected error');
+        }
+    }
+
+    async updateUserPassword(id: string, password: string): Promise<any> {
+        try {
+            password = encrypt(password); //Encrypt the password
+            const user = await userModel.update({ password }, { where: { id } });
+            return { status: 'OK', user }
+
+        } catch (error) {
+            if (error instanceof ValidationError) {
+                const message = error.errors[0]?.message || 'Err al actualizar la contraseña';
+                const err = new Error(message) as CustomError;
+                err.status = 404;
+                throw err;
+            }
             throw new Error('Unexpected error');
         }
     }

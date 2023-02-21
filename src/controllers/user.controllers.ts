@@ -54,6 +54,18 @@ class UserController {
         }
     }
 
+    async updatePassword(req: Request, res: Response) {
+        try {
+            const { id } = req.params;
+            const { password } = req.body;
+            const user = await userService.updateUserPassword(id, password);
+            res.status(200).send(user);
+
+        } catch (error: any) {
+            res.status(error?.status || 500).send({ status: 'Failed', message: error.message || error });
+        }
+    }
+
     async deleteUser(req: Request, res: Response) {
         try {
             const { id } = req.params;
