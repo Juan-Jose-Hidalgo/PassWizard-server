@@ -22,34 +22,60 @@ class UserController {
         try {
             const { name, username, email, password } = req.body;
             const img = req.file?.path || 'uploads/user.png';
-            console.log('--------------------------------');
-            console.log(req.file);
-            console.log('--------------------------------');
             const newUser = await userService.register(name, username, email, password, img);
             res.status(201).send(newUser);
 
         } catch (error: any) {
-            console.log('Error', error);
             res.status(error?.status || 500).send({ status: 'Failed', message: error.message });
+        }
+    }
+
+    async getUser({ headers }: Request, res: Response) {
+        try {
+            const id = headers.id as string;
+            const user = await userModel.findByPk(id);
+            res.status(200).send({ status: 'Ok', user });
+
+        } catch (error: any) {
+            res.status(error?.status || 500).send({ status: 'Failed', message: error.message || error });
+        }
+    }
+
+    async updateImage(req: Request, res: Response) {
+        try {
+            const { id } = req.params;
+            const { olderImg } = req.body;
+            const img = req.file?.path || undefined;
+
+            const user = await userService.updateImage(id, img, olderImg);
+            res.status(200).send(user);
+        } catch (error: any) {
+            res.status(error?.status || 500).send({ status: 'Failed', message: error.message || error });
+        }
+    }
+
+    async updatePassword(req: Request, res: Response) {
+        try {
+            const { id } = req.params;
+            const { password } = req.body;
+            const user = await userService.updateUserPassword(id, password);
+            res.status(200).send(user);
+
+        } catch (error: any) {
+            res.status(error?.status || 500).send({ status: 'Failed', message: error.message || error });
         }
     }
 
     async updateUser(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            const { username, email } = req.body;
-            let { password } = req.body;
+            const { name, username, email } = req.body;
 
-            if (password) password = encrypt(password);
-
-            const updatedUser = await userModel.update(
-                { username, email, password },
-                { where: { id } }
-            );
-            res.status(200).send(updatedUser);
+            const user = await userService.updateUser(id, name, username, email);
+            res.status(200).send(user);
 
         } catch (error: any) {
-            res.status(error?.status || 500).send({ status: 'Failed', data: { error: error.message || error } });
+            res.status(error?.status || 500).send({ status: 'Failed', message: error.message || error });
         }
     }
 
@@ -90,6 +116,17 @@ class UserController {
             const token = req.header('x-token');
             const newToken = await userService.renewToken(`${token}`);
             res.status(200).send(newToken);
+
+        } catch (error: any) {
+            res.status(error?.status || 500).send({ status: 'Failed', data: { error: error.message || error } });
+        }
+    }
+
+    async deleteAccount(req: Request, res: Response) {
+        try {
+            const { id } = req.params;
+            await userService.deleteAccount(id);
+            res.status(204).send();
 
         } catch (error: any) {
             res.status(error?.status || 500).send({ status: 'Failed', data: { error: error.message || error } });

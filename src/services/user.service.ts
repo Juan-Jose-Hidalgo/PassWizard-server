@@ -1,13 +1,17 @@
 import { JwtPayload } from "jsonwebtoken";
+import { ValidationError } from "sequelize";
 
 import { compare, encrypt } from "../helpers/bcrypt.helper";
+import { deleteFile } from "../helpers/delete-img.helper";
 import { generateJwt, validateJWT } from "../helpers/jwt.helper";
-import { userModel } from "../models/user.model";
-import { UserResponse } from "../interfaces/response.interface";
-import { ValidationError } from "sequelize";
 import { CustomError } from "../interfaces/error.interface";
+import { UserResponse } from "../interfaces/response.interface";
+import { categoryModel } from "../models/category.model";
+import { passwordModel } from "../models/password.model";
+import { userModel } from "../models/user.model";
 
 class UserService {
+    //ToDo: mover los métodos login, register, renewToken y deleteAccount a authController.
     /**
      * Checks if the email and password passed by parameter are found in the database.
      * 
@@ -29,10 +33,10 @@ class UserService {
 
             // If any data is invalid, it throws an error.
             if (!cryptPass || user === null) {
-                throw {
-                    status: 404,
-                    message: 'Email o contraseña incorrectos.'
-                }
+                const message = 'Usuario o contraseña incorrectos.';
+                const err = new Error(message) as CustomError;
+                err.status = 404;
+                throw err;
             }
 
             // Generate JWT.
@@ -76,6 +80,70 @@ class UserService {
         }
     }
 
+    async updateUser(id: string, name: string, username: string, email: string) {
+        try {
+            const user = await userModel.update(
+                { name, username, email },
+                { where: { id } }
+            );
+            return { status: 'OK', user }
+        } catch (error) {
+            if (error instanceof ValidationError) {
+                const message = error.errors[0]?.message || 'Error en la validación del formulario';
+                const err = new Error(message) as CustomError;
+                err.status = 409;
+                throw err;
+            }
+
+            throw new Error('Unexpected error');
+        }
+    }
+
+    async updateImage(id: string, img: string | undefined, olderImg: string) {
+
+        if (img === undefined) {
+            const message = 'Formato de imagen no permitido. Solo se admiten imágenes en formato .jpeg, .jpg o .png';
+            const err = new Error(message) as CustomError;
+            err.status = 415;
+            throw err
+        }
+
+        try {
+            if (olderImg !== 'uploads/user.png') {
+                deleteFile(olderImg)
+            };
+
+            const user = await userModel.update({ img }, { where: { id } });
+            return { status: 'OK', user }
+
+        } catch (error) {
+            if (error instanceof ValidationError) {
+                const message = error.errors[0]?.message || 'Error al actualizar la imagen de perfil.';
+                const err = new Error(message) as CustomError;
+                err.status = 404;
+                throw err;
+            }
+            throw new Error('Unexpected error');
+        }
+    }
+
+    async updateUserPassword(id: string, password: string): Promise<any> {
+        try {
+            password = encrypt(password); //Encrypt the password
+            const user = await userModel.update({ password }, { where: { id } });
+            return { status: 'OK', user }
+
+        } catch (error) {
+            if (error instanceof ValidationError) {
+                const message = error.errors[0]?.message || 'Err al actualizar la contraseña';
+                const err = new Error(message) as CustomError;
+                err.status = 404;
+                throw err;
+            }
+            throw new Error('Unexpected error');
+        }
+    }
+
     async renewToken(token: string) {
         if (!token) {
             throw {
@@ -94,6 +162,29 @@ class UserService {
                 status: 401,
                 message: 'Token no válido'
             };
+        }
+    }
+
+    async deleteAccount(id: string) {
+        try {
+            const user: any = await userModel.findByPk(id);
+
+            if (user.img !== 'uploads/user.png') {
+                deleteFile(user.img)
+            };
+
+            await passwordModel.destroy({ where: { userId: id } });
+            await categoryModel.destroy({ where: { userId: id } });
+            await userModel.destroy({ where: { id } });
+
+        } catch (error) {
+            if (error instanceof ValidationError) {
+                const message = error.errors[0]?.message || 'Err al actualizar la contraseña';
+                const err = new Error(message) as CustomError;
+                err.status = 404;
+                throw err;
+            }
+            throw new Error('Unexpected error');
         }
     }
 }
