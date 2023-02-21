@@ -6,9 +6,12 @@ import { deleteFile } from "../helpers/delete-img.helper";
 import { generateJwt, validateJWT } from "../helpers/jwt.helper";
 import { CustomError } from "../interfaces/error.interface";
 import { UserResponse } from "../interfaces/response.interface";
+import { categoryModel } from "../models/category.model";
+import { passwordModel } from "../models/password.model";
 import { userModel } from "../models/user.model";
 
 class UserService {
+    //ToDo: mover los métodos login, register, renewToken y deleteAccount a authController.
     /**
      * Checks if the email and password passed by parameter are found in the database.
      * 
@@ -106,7 +109,6 @@ class UserService {
         }
 
         try {
-            console.log(olderImg);
             if (olderImg !== 'uploads/user.png') {
                 deleteFile(olderImg)
             };
@@ -160,6 +162,29 @@ class UserService {
                 status: 401,
                 message: 'Token no válido'
             };
+        }
+    }
+
+    async deleteAccount(id: string) {
+        try {
+            const user: any = await userModel.findByPk(id);
+
+            if (user.img !== 'uploads/user.png') {
+                deleteFile(user.img)
+            };
+
+            await passwordModel.destroy({ where: { userId: id } });
+            await categoryModel.destroy({ where: { userId: id } });
+            await userModel.destroy({ where: { id } });
+
+        } catch (error) {
+            if (error instanceof ValidationError) {
+                const message = error.errors[0]?.message || 'Err al actualizar la contraseña';
+                const err = new Error(message) as CustomError;
+                err.status = 404;
+                throw err;
+            }
+            throw new Error('Unexpected error');
         }
     }
 }

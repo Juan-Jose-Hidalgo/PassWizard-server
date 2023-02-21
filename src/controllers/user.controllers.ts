@@ -121,6 +121,17 @@ class UserController {
             res.status(error?.status || 500).send({ status: 'Failed', data: { error: error.message || error } });
         }
     }
+
+    async deleteAccount(req: Request, res: Response) {
+        try {
+            const { id } = req.params;
+            await userService.deleteAccount(id);
+            res.status(204).send();
+
+        } catch (error: any) {
+            res.status(error?.status || 500).send({ status: 'Failed', data: { error: error.message || error } });
+        }
+    }
 }
 
 const userController = new UserController();
