@@ -2,6 +2,7 @@ import { JwtPayload } from "jsonwebtoken";
 import { ValidationError } from "sequelize";
 
 import { compare, encrypt } from "../helpers/bcrypt.helper";
+import { deleteFile } from "../helpers/delete-img.helper";
 import { generateJwt, validateJWT } from "../helpers/jwt.helper";
 import { CustomError } from "../interfaces/error.interface";
 import { UserResponse } from "../interfaces/response.interface";
@@ -91,6 +92,35 @@ class UserService {
                 throw err;
             }
 
+            throw new Error('Unexpected error');
+        }
+    }
+
+    async updateImage(id: string, img: string | undefined, olderImg: string) {
+
+        if (img === undefined) {
+            const message = 'Formato de imagen no permitido. Solo se admiten imágenes en formato .jpeg, .jpg o .png';
+            const err = new Error(message) as CustomError;
+            err.status = 415;
+            throw err
+        }
+
+        try {
+            console.log(olderImg);
+            if (olderImg !== 'uploads/user.png') {
+                deleteFile(olderImg)
+            };
+
+            const user = await userModel.update({ img }, { where: { id } });
+            return { status: 'OK', user }
+
+        } catch (error) {
+            if (error instanceof ValidationError) {
+                const message = error.errors[0]?.message || 'Error al actualizar la imagen de perfil.';
+                const err = new Error(message) as CustomError;
+                err.status = 404;
+                throw err;
+            }
             throw new Error('Unexpected error');
         }
     }

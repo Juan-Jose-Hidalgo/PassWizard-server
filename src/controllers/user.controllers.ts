@@ -41,14 +41,14 @@ class UserController {
         }
     }
 
-    async updateUser(req: Request, res: Response) {
+    async updateImage(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            const { name, username, email } = req.body;
+            const { olderImg } = req.body;
+            const img = req.file?.path || undefined;
 
-            const user = await userService.updateUser(id, name, username, email);
+            const user = await userService.updateImage(id, img, olderImg);
             res.status(200).send(user);
-
         } catch (error: any) {
             res.status(error?.status || 500).send({ status: 'Failed', message: error.message || error });
         }
@@ -59,6 +59,19 @@ class UserController {
             const { id } = req.params;
             const { password } = req.body;
             const user = await userService.updateUserPassword(id, password);
+            res.status(200).send(user);
+
+        } catch (error: any) {
+            res.status(error?.status || 500).send({ status: 'Failed', message: error.message || error });
+        }
+    }
+
+    async updateUser(req: Request, res: Response) {
+        try {
+            const { id } = req.params;
+            const { name, username, email } = req.body;
+
+            const user = await userService.updateUser(id, name, username, email);
             res.status(200).send(user);
 
         } catch (error: any) {
