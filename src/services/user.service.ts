@@ -146,22 +146,26 @@ class UserService {
 
     async renewToken(token: string) {
         if (!token) {
-            throw {
-                status: 401,
-                message: 'Error en el token.'
-            }
+            const message = 'Error en el token de acceso';
+            const err = new Error(message) as CustomError;
+            err.status = 401;
+            throw err;
         }
 
         try {
             const { id, username } = validateJWT(token) as JwtPayload;
             const newToken = generateJwt(id, username);
-            return { status: 'OK', userId: id, username, token: newToken };
+            const user = await userModel.findByPk(id);
+            return { status: 'OK', user, token: newToken };
 
         } catch (error) {
-            throw {
-                status: 401,
-                message: 'Token no válido'
-            };
+            if (error instanceof ValidationError) {
+                const message = error.errors[0]?.message || 'Err al actualizar la contraseña';
+                const err = new Error(message) as CustomError;
+                err.status = 404;
+                throw err;
+            }
+            throw new Error('Unexpected error');
         }
     }
 
