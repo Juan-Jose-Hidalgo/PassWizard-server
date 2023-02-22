@@ -40,7 +40,7 @@ class UserService {
             }
 
             // Generate JWT.
-            const token = generateJwt(user.id, user.username);
+            const token = generateJwt(user.id, user.username, user.img);
 
             return { status: 'OK', user, token };
 
@@ -65,7 +65,7 @@ class UserService {
             const passBcrypt = encrypt(password); //Encrypt the password
             const newUser: any = await userModel.create({ name, username, email, password: passBcrypt, img });
 
-            const token = generateJwt(newUser.id, newUser.username); //Generate JWT
+            const token = generateJwt(newUser.id, newUser.username, newUser.img); //Generate JWT
             return { status: 'OK', user: newUser, token }
 
         } catch (error) {
@@ -153,8 +153,8 @@ class UserService {
         }
 
         try {
-            const { id, username } = validateJWT(token) as JwtPayload;
-            const newToken = generateJwt(id, username);
+            const { id, username, img } = validateJWT(token) as JwtPayload;
+            const newToken = generateJwt(id, username, img);
             const user = await userModel.findByPk(id);
             return { status: 'OK', user, token: newToken };
 
