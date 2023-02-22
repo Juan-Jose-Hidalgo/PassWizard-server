@@ -82,11 +82,11 @@ class UserService {
 
     async updateUser(id: string, name: string, username: string, email: string) {
         try {
-            const user = await userModel.update(
+            const [rowsUpdated, [updatedUser]] = await userModel.update(
                 { name, username, email },
-                { where: { id } }
+                { where: { id }, returning: true }
             );
-            return { status: 'OK', user }
+            return { status: 'OK', user: updatedUser }
         } catch (error) {
             if (error instanceof ValidationError) {
                 const message = error.errors[0]?.message || 'Error en la validación del formulario';
@@ -113,8 +113,8 @@ class UserService {
                 deleteFile(olderImg)
             };
 
-            const user = await userModel.update({ img }, { where: { id } });
-            return { status: 'OK', user }
+            const [rowsUpdated, [updatedUser]] = await userModel.update({ img }, { where: { id }, returning: true });
+            return { status: 'OK', user: updatedUser }
 
         } catch (error) {
             if (error instanceof ValidationError) {
