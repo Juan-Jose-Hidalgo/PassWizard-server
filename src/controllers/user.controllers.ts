@@ -36,9 +36,9 @@ class UserController {
         }
     }
 
-    async getUser({ headers }: Request, res: Response) {
+    async getUser(req: Request, res: Response) {
         try {
-            const id = headers.id as string;
+            const { id } = req.params;
             const user = await userModel.findByPk(id);
             res.status(200).send({ status: 'Ok', user });
 
