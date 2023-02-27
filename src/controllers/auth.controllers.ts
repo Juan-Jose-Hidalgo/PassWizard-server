@@ -18,6 +18,14 @@ class AuthController {
         }
     }
 
+    /**
+     * Registers a new user with the given data and sends a response with the user object or an error message.
+     * 
+     * @param req The request object that contains the user data (name, username, email, password) and an optional image file.
+     * @param res The response object that sends back the user object or an error message.
+     * @returns A promise that resolves with a status code of 201 (created) and the user object if successful,
+     * or rejects with a status code of 500 (internal server error) and an error message if failed.
+     */
     async register(req: Request, res: Response) {
         try {
             const { name, username, email, password } = req.body;
@@ -30,22 +38,19 @@ class AuthController {
         }
     }
 
+    /**
+     * Renews the authentication token for the user and sends a response with the new token or an error message.
+     * 
+     * @param req The request object that contains the old token in the header (x-token).
+     * @param res The response object that sends back the new token or an error message.
+     * @returns A promise that resolves with a status code of 200 (ok) and the new token if successful,
+     * or rejects with a status code of 500 (internal server error) and an error message if failed.
+     */
     async renewToken(req: Request, res: Response) {
         try {
             const token = req.header('x-token');
             const newToken = await authService.renewToken(`${token}`);
             res.status(200).send(newToken);
-
-        } catch (error: any) {
-            res.status(error?.status || 500).send({ status: 'Failed', data: { error: error.message || error } });
-        }
-    }
-
-    async deleteAccount(req: Request, res: Response) {
-        try {
-            const { id } = req.params;
-            await authService.deleteAccount(id);
-            res.status(204).send();
 
         } catch (error: any) {
             res.status(error?.status || 500).send({ status: 'Failed', data: { error: error.message || error } });

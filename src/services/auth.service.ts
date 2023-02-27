@@ -6,9 +6,6 @@ import { compare, encrypt } from "../helpers/bcrypt.helper";
 import { deleteFile } from "../helpers/delete-img.helper";
 import { extractCredentials } from "../helpers/extract-credentials.helper";
 import { generateJwt, validateJWT } from "../helpers/jwt.helper";
-import { CustomError } from "../interfaces/error.interface";
-import { categoryModel } from "../models/category.model";
-import { passwordModel } from "../models/password.model";
 import { userModel } from "../models/user.model";
 
 class AuthService {
@@ -88,40 +85,19 @@ class AuthService {
         try {
             // Decode the token and get the payload
             const { id, username, img } = validateJWT(token) as JwtPayload;
+
             // Generate a new token with the same payload
             const newToken = generateJwt(id, username, img);
+
             // Find the user by id in the database
             const user = await userModel.findByPk(id);
-            // Return the user data and the new token
+
             return { status: 'OK', user, token: newToken };
 
         } catch (error) {
             // Handle validation errors or other errors
             if (error instanceof ValidationError) throw new CustomErrorClass(error.errors[0]?.message, 404);
             throw new Error('Error inesperado.');
-        }
-    }
-
-    async deleteAccount(id: string) {
-        try {
-            const user: any = await userModel.findByPk(id);
-
-            if (user.img !== 'uploads/user.png') {
-                deleteFile(user.img)
-            };
-
-            await passwordModel.destroy({ where: { userId: id } });
-            await categoryModel.destroy({ where: { userId: id } });
-            await userModel.destroy({ where: { id } });
-
-        } catch (error) {
-            if (error instanceof ValidationError) {
-                const message = error.errors[0]?.message || 'Err al actualizar la contraseña';
-                const err = new Error(message) as CustomError;
-                err.status = 404;
-                throw err;
-            }
-            throw new Error('Unexpected error');
         }
     }
 }
