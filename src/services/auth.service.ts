@@ -7,7 +7,6 @@ import { deleteFile } from "../helpers/delete-img.helper";
 import { extractCredentials } from "../helpers/extract-credentials.helper";
 import { generateJwt, validateJWT } from "../helpers/jwt.helper";
 import { CustomError } from "../interfaces/error.interface";
-import { UserResponse } from "../interfaces/response.interface";
 import { categoryModel } from "../models/category.model";
 import { passwordModel } from "../models/password.model";
 import { userModel } from "../models/user.model";
@@ -49,15 +48,16 @@ class AuthService {
     }
 
     /**
-     * Registers a new user in the system.
+     * Registers a new user in the database and returns a JWT token and the user data.
      * 
-     * @param name - The name of the user.
-     * @param username - The username of the user.
-     * @param email - The email address of the user.
-     * @param password - The password of the user.
-     * @param img - The URL of the user's profile image.
-     * @returns An object containing the new user, a JWT token and a status message.
-     * @throws {CustomErrorClass} When there's a validation error (status 422) or an unexpected error (status 500).
+     * @param name The name of the user.
+     * @param username The username of the user. Must be unique.
+     * @param email The email of the user. Must be valid and unique.
+     * @param password The password of the user.
+     * @param img The image URL of the user. Optional.
+     * @returns An object with status, user and token properties if successful, or an error if not.
+     * @throws {CustomErrorClass} If any validation error occurs in the user model schema.
+     * @throws {Error} If any unexpected error occurs in the database or JWT generation process.
      */
     async register(name: string, username: string, email: string, password: string, img: string) {
         try {
@@ -68,39 +68,37 @@ class AuthService {
             return { status: 'OK', user: newUser, token }
 
         } catch (error) {
-            if (error instanceof ValidationError) {
-                const message = error.errors[0]?.message || 'Error en la validación del formulario';
-                const err = new Error(message) as CustomError;
-                err.status = 422;
-                throw err;
-            }
-
-            throw new Error('Unexpected error');
+            if (error instanceof ValidationError) throw new CustomErrorClass(error.errors[0]?.message, 422);
+            throw new Error('Error inesperado.');
         }
     }
 
+    /**
+     * Renews the JWT token of a user and returns it along with the user data.
+     * 
+     * @param token The current JWT token of the user. Must be valid.
+     * @returns An object with status, user and token properties if successful, or an error if not.
+     * @throws {CustomErrorClass} If the token is missing or invalid, or if any validation error occurs in finding the user by id.
+     * @throws {Error} If any unexpected error occurs in the database or JWT generation process.
+     */
     async renewToken(token: string) {
-        if (!token) {
-            const message = 'Error en el token de acceso';
-            const err = new Error(message) as CustomError;
-            err.status = 401;
-            throw err;
-        }
+        // Check if the token is provided
+        if (!token) throw new CustomErrorClass('Error en el token de acceso.', 401);
 
         try {
+            // Decode the token and get the payload
             const { id, username, img } = validateJWT(token) as JwtPayload;
+            // Generate a new token with the same payload
             const newToken = generateJwt(id, username, img);
+            // Find the user by id in the database
             const user = await userModel.findByPk(id);
+            // Return the user data and the new token
             return { status: 'OK', user, token: newToken };
 
         } catch (error) {
-            if (error instanceof ValidationError) {
-                const message = error.errors[0]?.message || 'Err al actualizar la contraseña';
-                const err = new Error(message) as CustomError;
-                err.status = 404;
-                throw err;
-            }
-            throw new Error('Unexpected error');
+            // Handle validation errors or other errors
+            if (error instanceof ValidationError) throw new CustomErrorClass(error.errors[0]?.message, 404);
+            throw new Error('Error inesperado.');
         }
     }
 

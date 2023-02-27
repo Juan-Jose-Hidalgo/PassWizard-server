@@ -6,24 +6,6 @@ import { userModel } from '../models/user.model';
 import userService from '../services/user.service';
 
 class UserController {
-
-    async login(req: Request, res: Response) {
-        try {
-            const authHeader = req.headers.authorization;
-
-            if (!authHeader) {
-                throw new Error('Missing authorization header');
-            }
-
-            const auth = authHeader.split(' ')[1];
-            const [email, password] = Buffer.from(auth, 'base64').toString().split(':');
-            const user: any = await userService.login(email, password);
-            res.status(200).send(user);
-        } catch (error: any) {
-            res.status(error?.status || 500).send({ status: 'Failed', message: error.message || error });
-        }
-    }
-
     async register(req: Request, res: Response) {
         try {
             const { name, username, email, password } = req.body;

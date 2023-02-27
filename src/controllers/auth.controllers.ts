@@ -18,6 +18,18 @@ class AuthController {
         }
     }
 
+    async register(req: Request, res: Response) {
+        try {
+            const { name, username, email, password } = req.body;
+            const img = req.file?.path || 'uploads/user.png';
+            const newUser = await authService.register(name, username, email, password, img);
+            res.status(201).send(newUser);
+
+        } catch (error: any) {
+            res.status(error?.status || 500).send({ status: 'Failed', message: error.message });
+        }
+    }
+
     async renewToken(req: Request, res: Response) {
         try {
             const token = req.header('x-token');

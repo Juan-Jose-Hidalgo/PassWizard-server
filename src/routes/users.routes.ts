@@ -7,7 +7,6 @@ const router = Router();
 //ToDo: Mover las rutas necesarias a auth.routes.
 
 //* GET routes.
-router.get('/login', userController.login);
 router.get('/renew-token', userController.renewToken);
 router.get(':id', userController.getUser);
 router.get('/:userId/get-categories', userController.getUserCategories);
