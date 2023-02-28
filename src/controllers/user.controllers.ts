@@ -1,23 +1,38 @@
 import { Request, Response } from 'express';
+import { User } from '../interfaces/user-attributes.interface';
 import { categoryModel } from '../models/category.model';
 import { passwordModel } from '../models/password.model';
 import { userModel } from '../models/user.model';
 import userService from '../services/user.service';
 
 class UserController {
-   
-    async getUser(req: Request, res: Response) {
-        try {
-            const { id } = req.params;
-            const user = await userModel.findByPk(id);
-            res.status(200).send({ status: 'Ok', user });
+    /**
+     * Updates a user with the given data.
+     * 
+     * @param req - The request object containing the user id in params and the user data in body.
+     * @param res - The response object to send back the updated user or an error message.
+     */
+    async updateUser(req: Request, res: Response): Promise<void> {
+        const { id } = req.params;
+        const userId = Number.parseInt(id);
+        const userData: User = { id: userId, ...req.body };
 
+        try {
+            const user = await userService.updateUser(userData);
+            res.status(200).send(user);
         } catch (error: any) {
             res.status(error?.status || 500).send({ status: 'Failed', message: error.message || error });
         }
     }
 
-    async updateImage(req: Request, res: Response) {
+    /**
+     * Handles the request to update the image of a user and sends a response with the updated user data or an error message.
+     * 
+     * @param req - The request object with the user id in the params, the old image path in the body and the new image file in the file property.
+     * @param res - The response object to send back to the client.
+     * @returns void - The response is sent directly from this method.
+     */
+    async updateImage(req: Request, res: Response): Promise<void> {
         try {
             const { id } = req.params;
             const { olderImg } = req.body;
@@ -30,6 +45,12 @@ class UserController {
         }
     }
 
+    /**
+     * Updates the password of a user by its id and sends a response.
+     * 
+     * @param req - The request object with the id in the params and the password in the body
+     * @param res - The response object to send back the result
+     */
     async updatePassword(req: Request, res: Response) {
         try {
             const { id } = req.params;
@@ -42,19 +63,12 @@ class UserController {
         }
     }
 
-    async updateUser(req: Request, res: Response) {
-        try {
-            const { id } = req.params;
-            const { name, username, email } = req.body;
-
-            const user = await userService.updateUser(id, name, username, email);
-            res.status(200).send(user);
-
-        } catch (error: any) {
-            res.status(error?.status || 500).send({ status: 'Failed', message: error.message || error });
-        }
-    }
-
+    /**
+     * Deletes a user by its id and sends a response.
+     * 
+     * @param req - The request object with the id in the params
+     * @param res - The response object to send back the result
+     */
     async deleteUser(req: Request, res: Response) {
         try {
             const { id } = req.params;
@@ -66,6 +80,12 @@ class UserController {
         }
     }
 
+    /**
+     * Gets all the passwords of a user by its id and sends a response.
+     * 
+     * @param req - The request object with the user id in the params.
+     * @param res - The response object to send back the result.
+     */
     async getUserPasswords(req: Request, res: Response) {
         try {
             let { userId } = req.params;
@@ -77,6 +97,12 @@ class UserController {
         }
     }
 
+    /**
+     * Gets the user categories by user id.
+     * 
+     * @param req The request object
+     * @param res The response object
+     */
     async getUserCategories(req: Request, res: Response) {
         try {
             const { userId } = req.params;
@@ -87,6 +113,12 @@ class UserController {
         }
     }
 
+    /**
+     * Deletes an user account by id.
+     * 
+     * @param req The request object
+     * @param res The response object
+     */
     async deleteAccount(req: Request, res: Response) {
         try {
             const { id } = req.params;

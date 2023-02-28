@@ -2,8 +2,14 @@ import { Request, Response } from 'express';
 import { passwordModel } from '../models/password.model';
 
 class PasswordController {
-
-    async createPassword({ body }: Request, res: Response) {
+    /**
+     * Creates a new password with a given user ID, category.
+     * 
+     * @param {Request} { body } - The request object with the body property.
+     * @param {Response} res - The response object to send back the result.
+     * @returns {void} Nothing.
+     */
+    async createPassword({ body }: Request, res: Response): Promise<void> {
         try {
             const { userId, categoryId, name, pass } = body;
             const password = await passwordModel.create({
@@ -17,7 +23,14 @@ class PasswordController {
         }
     }
 
-    async updatePassword({ params, body }: Request, res: Response) {
+    /**
+     * Updates an existing password with a given ID and and new values for pass, name and category ID.
+     * 
+     * @param {Request} { params, body } - The request object with the params and body properties.
+     * @param {Response} res - The response object to send back the result.
+     * @returns {void} Nothing.
+     */
+    async updatePassword({ params, body }: Request, res: Response): Promise<void> {
         try {
             const { id } = params;
             const { pass, name, categoryId } = body;
@@ -32,7 +45,14 @@ class PasswordController {
         }
     }
 
-    async deletePassword({ params }: Request, res: Response) {
+    /**
+     * Deletes an existing password with a given ID.
+     * 
+     * @param {Request} { params } - The request object with the params property.
+     * @param {Response} res - The response object to send back the result.
+     * @returns {void} Nothing.
+     */
+    async deletePassword({ params }: Request, res: Response): Promise<void> {
         try {
             const { id } = params;
             const password = await passwordModel.destroy({ where: { id } });
