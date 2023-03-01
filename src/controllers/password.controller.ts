@@ -18,8 +18,7 @@ class PasswordController {
             res.status(200).send(password);
 
         } catch (error: any) {
-            console.log('Error', error);
-            res.status(error?.status || 500).send({ status: 'Failed', data: { error: error.message || error } });
+            res.status(error?.status || 500).send({ status: 'Failed', message: error.message });
         }
     }
 
@@ -41,7 +40,7 @@ class PasswordController {
             res.status(200).send(password);
 
         } catch (error: any) {
-            res.status(error?.status || 500).send({ status: 'Failed', data: { error: error.message || error } });
+            res.status(error?.status || 500).send({ status: 'Failed', message: error.message });
         }
     }
 
@@ -59,8 +58,7 @@ class PasswordController {
             res.status(200).send({ status: 'OK', data: password });
 
         } catch (error: any) {
-            console.log('Error', error);
-            res.status(error?.status || 500).send({ status: 'Failed', data: { error: error.message || error } });
+            res.status(error?.status || 500).send({ status: 'Failed', message: error.message });
         }
     }
 }

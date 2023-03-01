@@ -5,7 +5,6 @@ import CustomErrorClass from "../errors/custom-error.class";
 import { encrypt } from "../helpers/bcrypt.helper";
 import { deleteFile } from "../helpers/delete-img.helper";
 import { updateUserSchema } from "../helpers/user-data-validate.helper";
-import { CustomError } from "../interfaces/error.interface";
 import { User } from "../interfaces/user-attributes.interface";
 import { categoryModel } from "../models/category.model";
 import { passwordModel } from "../models/password.model";

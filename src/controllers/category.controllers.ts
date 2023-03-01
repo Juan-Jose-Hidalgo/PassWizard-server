@@ -19,7 +19,7 @@ class CategoryController {
             res.status(200).send({ status: 'OK', categories });
 
         } catch (error: any) {
-            res.status(error?.status || 500).send({ status: 'Failed', data: { error: error.message || error } });
+            res.status(error?.status || 500).send({ status: 'Failed', message: error.message });
         }
     }
 }
