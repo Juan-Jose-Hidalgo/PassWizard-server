@@ -21,5 +21,6 @@ app.use(cors({
 app.use(morgan('dev'));
 app.use('/uploads', express.static(path.resolve('uploads')));
 app.use(router);
+app.use('/ping', (req, res) => res.send('pong'));
 
 export default app;
