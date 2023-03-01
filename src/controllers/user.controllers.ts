@@ -6,6 +6,17 @@ import { userModel } from '../models/user.model';
 import userService from '../services/user.service';
 
 class UserController {
+    async getUser(req: Request, res: Response): Promise<void> {
+        const { id } = req.params;
+        const userId = Number.parseInt(id);
+
+        try {
+            const user = await userModel.findByPk(userId);
+            res.status(200).send({ status: 'Ok', user });
+        } catch (error: any) {
+            res.status(error?.status || 500).send({ status: 'Failed', message: error.message || error });
+        }
+    }
     /**
      * Updates a user with the given data.
      * 

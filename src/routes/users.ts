@@ -5,6 +5,7 @@ import upload from "../middlewares/user-img.middleware";
 const router = Router();
 
 //* GET routes.
+router.get('/:id', userController.getUser);
 router.get('/:userId/get-categories', userController.getUserCategories);
 router.get('/:userId/get-passwords', userController.getUserPasswords);
 
