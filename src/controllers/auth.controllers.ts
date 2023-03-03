@@ -29,7 +29,7 @@ class AuthController {
     async register(req: Request, res: Response) {
         try {
             const { name, username, email, password } = req.body;
-            const img = req.file?.path || 'uploads/user.png';
+            const img = 'uploads/user.png';
             const newUser = await authService.register(name, username, email, password, img);
             res.status(201).send(newUser);
 

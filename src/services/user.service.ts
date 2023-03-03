@@ -4,6 +4,7 @@ import CustomErrorClass from "../errors/custom-error.class";
 
 import { encrypt } from "../helpers/bcrypt.helper";
 import { deleteFile } from "../helpers/delete-img.helper";
+import { extractPath } from "../helpers/extract-path.helper";
 import { updateUserSchema } from "../helpers/user-data-validate.helper";
 import { User } from "../interfaces/user-attributes.interface";
 import { categoryModel } from "../models/category.model";
@@ -64,6 +65,8 @@ class UserService {
 
         try {
             // Delete the old image file if it is not the default one
+            olderImg = extractPath(olderImg);
+            console.log('Old image', olderImg);
             if (olderImg !== 'uploads/user.png') deleteFile(olderImg);
 
             // Update the user model with the new image path and return the updated data

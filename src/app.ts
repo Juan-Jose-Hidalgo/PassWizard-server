@@ -12,13 +12,6 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded());
-app.use((req, res, next) => {
-    console.log('CORS middleware loaded successfully');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    next();
-});
 app.use(cors({
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -28,5 +21,6 @@ app.use(cors({
 app.use(morgan('dev'));
 app.use('/uploads', express.static(path.resolve('uploads')));
 app.use(router); //Aquí cargo las rutas de manera dinámica.
+app.use('/ping', (req, res) => res.json({ ping: "pong" }));
 
 export default app;
