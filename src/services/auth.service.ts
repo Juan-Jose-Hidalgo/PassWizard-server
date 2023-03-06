@@ -3,7 +3,6 @@ import { ValidationError } from "sequelize";
 import CustomErrorClass from "../errors/custom-error.class";
 
 import { compare, encrypt } from "../helpers/bcrypt.helper";
-import { deleteFile } from "../helpers/delete-img.helper";
 import { extractCredentials } from "../helpers/extract-credentials.helper";
 import { generateJwt, validateJWT } from "../helpers/jwt.helper";
 import { userModel } from "../models/user.model";
