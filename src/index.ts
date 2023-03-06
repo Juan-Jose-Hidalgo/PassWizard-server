@@ -3,10 +3,9 @@ import app from './app';
 import { sequelize } from './database/database.conexion';
 
 const PORT = process.env.PORT || 3002;
-
 const main = async () => {
     try {
-        await sequelize.authenticate();
+        await sequelize.sync();
         app.listen(PORT, () => console.log(`Servidor corriendo en el puerto ${PORT}`));
     } catch (error) {
         console.error('Error en la conexión a la BBDD:', error);
@@ -14,4 +13,3 @@ const main = async () => {
 }
 
 main();
-
