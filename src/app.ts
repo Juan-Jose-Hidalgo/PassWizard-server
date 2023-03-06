@@ -20,7 +20,7 @@ app.use(cors({
 }));
 app.use(morgan('dev'));
 app.use('/uploads', express.static(path.resolve('uploads')));
-app.use(router); //Aquí cargo las rutas de manera dinámica.
+app.use(router); //Dinamic routes.
 app.use('/ping', (req, res) => res.json({ ping: "pong" }));
 
 export default app;
